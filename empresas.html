@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestionar Empresas</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Librería SweetAlert2 para alertas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <h2>Gestionar Empresas</h2>
+
+    <!-- Botones de acción -->
+    <div class="acciones">
+        <button class="btn" id="agregar-empresa-btn">Agregar Empresa</button>
+        <button class="btn" id="agregar-sucursal-btn">Agregar Sucursal</button>
+        <button class="btn" id="agregar-proveedor-btn">Agregar Proveedor</button>
+    </div>
+
+    <!-- Tabla de Empresas -->
+    <h3>Empresas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Seleccionar</th>
+                <th>Nombre de la Empresa</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="empresas-table">
+            <!-- Las empresas se generarán dinámicamente -->
+        </tbody>
+    </table>
+
+    <!-- Tabla de Sucursales -->
+    <h3>Sucursales</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Seleccionar</th>
+                <th>Nombre de la Sucursal</th>
+                <th>Empresa Asociada</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="sucursales-table">
+            <!-- Las sucursales se generarán dinámicamente -->
+        </tbody>
+    </table>
+
+    <!-- Tabla de Proveedores -->
+    <h3>Proveedores</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Seleccionar</th>
+                <th>Nombre del Proveedor</th>
+                <th>Días de Crédito</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="proveedores-table">
+            <!-- Los proveedores se generarán dinámicamente -->
+        </tbody>
+    </table>
+
+    <!-- Modales -->
+
+    <!-- Modal para Agregar/Editar Empresa -->
+    <div id="empresa-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-empresa-modal" class="close">&times;</span>
+            <h3 id="empresa-modal-title">Agregar Nueva Empresa</h3>
+            <div class="form-group">
+                <label for="nombre-empresa">Nombre de la Empresa:</label>
+                <input type="text" id="nombre-empresa" placeholder="Ingrese el nombre de la empresa">
+            </div>
+            <button class="btn" id="guardar-empresa">Guardar Empresa</button>
+            <button class="btn" id="actualizar-empresa" style="display: none;">Actualizar Empresa</button>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar/Editar Sucursal -->
+    <div id="sucursal-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-sucursal-modal" class="close">&times;</span>
+            <h3 id="sucursal-modal-title">Agregar Nueva Sucursal</h3>
+            <div class="form-group">
+                <label for="empresa-sucursal">Seleccionar Empresa:</label>
+                <select id="empresa-sucursal">
+                    <option value="">Seleccione una empresa</option>
+                    <!-- Opciones generadas dinámicamente -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="nombre-sucursal">Nombre de la Sucursal:</label>
+                <input type="text" id="nombre-sucursal" placeholder="Ingrese el nombre de la sucursal">
+            </div>
+            <button class="btn" id="guardar-sucursal">Guardar Sucursal</button>
+            <button class="btn" id="actualizar-sucursal" style="display: none;">Actualizar Sucursal</button>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar/Editar Proveedor -->
+    <div id="proveedor-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-proveedor-modal" class="close">&times;</span>
+            <h3 id="proveedor-modal-title">Agregar Nuevo Proveedor</h3>
+            <div class="form-group">
+                <label for="nombre-proveedor">Nombre del Proveedor:</label>
+                <input type="text" id="nombre-proveedor" placeholder="Ingrese el nombre del proveedor">
+            </div>
+            <div class="form-group">
+                <label for="dias-credito-proveedor">Días de Crédito:</label>
+                <input type="number" id="dias-credito-proveedor" placeholder="Ingrese los días de crédito" min="0">
+            </div>
+            <button class="btn" id="guardar-proveedor">Guardar Proveedor</button>
+            <button class="btn" id="actualizar-proveedor" style="display: none;">Actualizar Proveedor</button>
+        </div>
+    </div>
+
+    <!-- Scripts JavaScript -->
+    <script src="empresas.js"></script>
+</body>
+</html>

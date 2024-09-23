@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generación de Reportes</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Librerías externas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Librerías para exportar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Estilos personalizados para la página de reportes */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h2 {
+            text-align: center;
+        }
+        .filtros, .busquedas, .fecha-hora, .acciones {
+            margin: 20px;
+        }
+        .filtros label, .busquedas label, .fecha-hora label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .filtros select, .busquedas input, .fecha-hora input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+        }
+        .acciones {
+            text-align: center;
+        }
+        .acciones button {
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        /* Estilos para el modal de reporte */
+        #reporte-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        #reporte-modal .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            width: 95%;
+            max-height: 90%;
+            overflow: auto;
+            position: relative;
+        }
+        #reporte-modal .close {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #reporte-modal table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #reporte-modal th, #reporte-modal td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        #reporte-modal th {
+            background-color: #f2f2f2;
+        }
+        #export-buttons {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        #export-buttons button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        /* Estilos para botones de filtro por estado */
+        .filtro-estado {
+            margin: 20px;
+            text-align: center;
+        }
+        .filtro-estado .btn-estado {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .filtro-estado .btn-estado.active {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Generación de Reportes</h2>
+
+    <!-- Filtros -->
+    <div class="filtros">
+        <label for="filtro-sucursal">Sucursal:</label>
+        <select id="filtro-sucursal">
+            <option value="todas">Todas</option>
+            <!-- Opciones generadas dinámicamente -->
+        </select>
+
+        <label for="filtro-empresa">Empresa:</label>
+        <select id="filtro-empresa">
+            <option value="todas">Todas</option>
+            <!-- Opciones generadas dinámicamente -->
+        </select>
+
+        <label for="filtro-proveedor">Proveedor:</label>
+        <select id="filtro-proveedor">
+            <option value="todos">Todos</option>
+            <!-- Opciones generadas dinámicamente -->
+        </select>
+
+        <label for="filtro-banco">Banco:</label>
+        <select id="filtro-banco">
+            <option value="todos">Todos</option>
+            <option value="BANRURAL">Banrural</option>
+            <option value="BI">BI</option>
+            <option value="G&T">G&T</option>
+        </select>
+    </div>
+
+    <!-- Botones de filtro por estado -->
+    <div class="filtro-estado">
+        <button class="btn-estado" data-estado="todas">Todas las Facturas</button>
+        <button class="btn-estado" data-estado="pagadas">Facturas Pagadas</button>
+        <button class="btn-estado" data-estado="porPagar">Facturas por Pagar</button>
+        <button class="btn-estado" data-estado="vencidas">Facturas Vencidas</button>
+        <button class="btn-estado" data-estado="pagoPendiente">Facturas con Pago Pendiente</button>
+        <button class="btn-estado" data-estado="prontoVencer">Facturas Pronto a Vencer (8 días)</button>
+        <button class="btn-estado" data-estado="porPagarHoy">Facturas por Pagar Hoy</button>
+    </div>
+
+    <!-- Búsquedas -->
+    <div class="busquedas">
+        <label for="buscar-factura">Buscar por No. de Factura (ej: 123,456):</label>
+        <input type="text" id="buscar-factura" placeholder="Ingrese números de factura separados por comas">
+
+        <label for="buscar-boleta">Buscar por Boleta ID (ej: B001,B002):</label>
+        <input type="text" id="buscar-boleta" placeholder="Ingrese IDs de boleta separados por comas">
+    </div>
+
+    <!-- Fecha y Hora -->
+    <div class="fecha-hora">
+        <label for="fecha-inicio">Fecha y Hora de Inicio:</label>
+        <input type="datetime-local" id="fecha-inicio">
+
+        <label for="fecha-fin">Fecha y Hora de Fin:</label>
+        <input type="datetime-local" id="fecha-fin">
+    </div>
+
+    <!-- Botón para generar reporte -->
+    <div class="acciones">
+        <button class="btn" id="generar-reporte-btn">Generar Reporte</button>
+    </div>
+
+    <!-- Modal para el reporte -->
+    <div id="reporte-modal">
+        <div class="modal-content">
+            <span class="close" id="close-reporte-modal">&times;</span>
+            <h3>Reporte Generado</h3>
+            <div id="export-buttons">
+                <button class="btn" id="export-excel">Exportar a Excel</button>
+                <button class="btn" id="export-pdf">Exportar a PDF</button>
+                <button class="btn" id="export-image">Exportar a Imagen</button>
+            </div>
+            <table id="reporte-table">
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th>Proveedor</th>
+                        <th>Fecha de Factura</th>
+                        <th>Número de Factura</th>
+                        <th>Monto de Factura</th>
+                        <th>Fecha de Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Fecha de Abono</th>
+                        <th>Abono</th>
+                        <th>ID Boleta</th>
+                        <th>Banco</th>
+                        <th>Forma de Pago</th>
+                        <th>Quién Depositó</th>
+                    </tr>
+                </thead>
+                <tbody id="reporte-contenido">
+                    <!-- Contenido generado dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Enlace para volver a la página principal -->
+    <div class="acciones">
+        <a href="index.html" class="btn">Volver a la Página Principal</a>
+    </div>
+
+    <!-- Archivos JavaScript -->
+    <script src="db.js"></script>
+    <script src="reportes.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>

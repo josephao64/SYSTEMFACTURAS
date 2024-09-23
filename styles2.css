@@ -1,0 +1,275 @@
+/* styles.css */
+
+/* Estilos generales */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: normal;
+    color: #444;
+}
+
+/* Enlaces */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Contenedor principal */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Botones */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+    text-align: center;
+    min-width: 150px; /* Ancho mínimo */
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Grupos de formulario */
+.form-group {
+    margin-bottom: 15px;
+    display: inline-block; /* Alinear los elementos en línea */
+    width: auto; /* Limitar el ancho de cada grupo */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: normal;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    max-width: 250px; /* Limitar el ancho de los inputs y selects */
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* Filtros y acciones */
+.filtros,
+.filtro-estado,
+.ordenamiento,
+.busquedas,
+.acciones,
+.fecha-hora {
+    margin: 20px auto;
+    width: auto; /* Limitar el ancho de los contenedores */
+    max-width: 900px; /* Máximo ancho */
+    text-align: center; /* Centrar el contenido */
+}
+
+.filtros select,
+.busquedas input,
+.fecha-hora input {
+    width: 100%;
+    max-width: 250px; /* Limitar el ancho de los selects y inputs */
+    padding: 8px 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+/* Estilo botones de filtro por estado */
+.filtro-estado {
+    text-align: center;
+}
+
+.filtro-estado .btn-estado {
+    padding: 8px 15px;
+    margin: 5px;
+    font-size: 14px;
+    background-color: #e9ecef;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 150px; /* Ancho mínimo */
+}
+
+.filtro-estado .btn-estado.active,
+.filtro-estado .btn-estado:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Estilos de tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th,
+table td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+table th {
+    background-color: #f1f1f1;
+    font-weight: normal;
+}
+
+table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Colores de filas según estado */
+.sin-pago {
+    background-color: #ffe5e5;
+}
+
+.pendiente {
+    background-color: #fff8e5;
+}
+
+.pagada {
+    background-color: #e5ffe5;
+}
+
+/* Estilos de modales */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90%;
+    overflow-y: auto;
+    border-radius: 4px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.close {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* Botones de exportación */
+#export-buttons {
+    text-align: right;
+    margin-bottom: 15px;
+}
+
+#export-buttons .btn {
+    margin-left: 10px;
+}
+
+/* Estilos de inputs y selects */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+select {
+    max-width: 250px; /* Limitar el ancho */
+    padding: 8px 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Botones dentro de tablas */
+table .btn {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+    .filtros,
+    .busquedas,
+    .fecha-hora,
+    .acciones {
+        margin: 15px 0;
+    }
+
+    table th,
+    table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .btn,
+    .filtro-estado .btn-estado {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="datetime-local"],
+    select {
+        max-width: 100%; /* Ajuste para pantallas pequeñas */
+    }
+}
+
+/* Otros estilos según sea necesario */
