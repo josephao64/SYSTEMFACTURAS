@@ -1,189 +1,9 @@
 /* styles.css */
 
-/* Estilo general */
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    padding: 20px;
-    background-color: #f5f5f5; /* Fondo suave */
-}
+/* ... (mantener el resto de estilos existentes) ... */
 
-/* Encabezados */
-h1, h2 {
-    text-align: center;
-    color: #333;
-}
-
-/* Contenedores de filtros, búsquedas y acciones */
-.filtros, .busquedas, .acciones, .total-pendiente {
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-}
-
-.filtros label, .busquedas label {
-    margin-right: 10px;
-    font-weight: bold;
-}
-
-.filtros select, .ordenamiento select, .busquedas input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Botones de filtro por estado */
-.filtro-estado {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.filtro-estado .btn-estado {
-    padding: 8px 12px;
-    background-color: #6c757d; /* Gris */
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-.filtro-estado .btn-estado.active, .filtro-estado .btn-estado:hover {
-    background-color: #007bff; /* Azul al activar o hover */
-}
-
-/* Estilo para las tablas */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background-color: #fff; /* Fondo blanco para las tablas */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 12px 15px;
-    text-align: center;
-}
-
-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-    color: #555;
-}
-
-table td {
-    color: #333;
-}
-
-/* Nueva columna Total Boleta */
-table th:nth-child(16), table td:nth-child(16) {
-    width: 120px;
-}
-
-/* Botones dentro de las tablas */
-table .btn-ver-boletas {
-    padding: 6px 10px;
-    background-color: #28a745; /* Verde */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-table .btn-ver-boletas:hover {
-    background-color: #218838;
-}
-
-/* Estilo para botones de acciones principales */
-.btn {
-    padding: 10px 20px;
-    background-color: #007bff; /* Azul primario */
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin-right: 10px;
-    transition: background-color 0.3s;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-.btn:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-/* Estilo para botones de exportación en el reporte */
-#export-buttons button {
-    padding: 8px 16px;
-    background-color: #17a2b8; /* Azul cielo */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-left: 10px;
-}
-
-#export-buttons button:hover {
-    background-color: #138496;
-}
-
-/* Estilo para los formularios */
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
-}
-
-.form-group input, .form-group select {
-    padding: 8px;
-    width: 100%;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-/* Estados de las facturas */
-.pagada {
-    background-color: #d4edda; /* Verde claro */
-    color: #155724; /* Verde oscuro */
-}
-
-.pendiente {
-    background-color: #fff3cd; /* Amarillo claro */
-    color: #856404; /* Amarillo oscuro */
-}
-
-.sin-pago {
-    background-color: #f8d7da; /* Rojo claro */
-    color: #721c24; /* Rojo oscuro */
-}
-
-/* Estilo de los checkboxes */
-.factura-checkbox {
-    transform: scale(1.2);
-    cursor: pointer;
-}
-
-/* Estilo de los modales */
-.modal {
+/* Estilo específico para el modal de reporte */
+#reporte-modal {
     display: none; /* Oculto por defecto */
     position: fixed;
     z-index: 1000;
@@ -195,58 +15,31 @@ table .btn-ver-boletas:hover {
     background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
     justify-content: center;
     align-items: center;
-    padding: 20px;
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px 30px;
-    border: 1px solid #888;
-    width: 100%;
-    max-width: 600px;
-    max-height: 90%;
-    overflow-y: auto;
-    position: relative;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.modal-content h2 {
-    margin-top: 0;
-    color: #333;
-}
-
-.close {
-    color: #aaa;
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.3s;
-}
-
-.close:hover,
-.close:focus {
-    color: #000;
-}
-
-/* Estilo de los botones dentro de los modales */
-.modal-actions {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.modal-actions .btn {
-    width: 45%;
-}
-
-/* Estilo específico para el modal de reporte */
 #reporte-modal .modal-content {
-    width: 95%;
-    max-width: 1000px;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 20px;
+    border-radius: 0;
+    box-shadow: none;
+    position: relative;
+    overflow: auto;
+}
+
+#reporte-modal .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 36px;
+}
+
+#reporte-modal h2 {
+    text-align: center;
+    margin-top: 0;
 }
 
 #reporte-table {
@@ -264,78 +57,34 @@ table .btn-ver-boletas:hover {
 #reporte-table th {
     background-color: #f4f4f4;
     color: #555;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 #reporte-table td {
     color: #333;
 }
 
-/* Estilos para los botones de exportación en el reporte */
-#export-buttons {
-    text-align: right;
-    margin-bottom: 15px;
+/* Añadir scroll al contenido del modal si es necesario */
+#reporte-modal .modal-content {
+    overflow: auto;
 }
 
-/* Estilo para los mensajes cuando no hay facturas */
-.no-facturas {
-    text-align: center;
-    padding: 20px;
-    color: #777;
-}
-
-/* Responsividad para dispositivos móviles */
+/* Mejorar la visualización en dispositivos móviles */
 @media (max-width: 768px) {
-    .filtros, .busquedas, .acciones, .total-pendiente {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .filtros label, .busquedas label {
-        margin-right: 0;
-    }
-
-    .filtro-estado {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .filtro-estado .btn-estado {
-        width: 100%;
-    }
-
-    table th, table td {
-        padding: 8px 10px;
-    }
-
-    .modal-content {
-        padding: 15px 20px;
-    }
-
     #reporte-modal .modal-content {
-        width: 98%;
+        padding: 10px;
     }
 
-    #export-buttons button {
-        width: 100%;
-        margin: 10px 0 0 0;
+    #reporte-modal .close {
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
     }
-}
 
-/* Scrollbar personalizada para modales */
-.modal-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    #reporte-table th, #reporte-table td {
+        padding: 8px 6px;
+        font-size: 12px;
+    }
 }

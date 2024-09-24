@@ -51,15 +51,13 @@
         </select>
     </div>
 
-    <!-- Botones de filtro por estado -->
-    <div class="filtro-estado">
-        <button class="btn-estado" data-estado="todas">Todas las Facturas</button>
-        <button class="btn-estado" data-estado="pagadas">Facturas Pagadas</button>
-        <button class="btn-estado" data-estado="porPagar">Facturas por Pagar</button>
-        <button class="btn-estado" data-estado="vencidas">Facturas Vencidas</button>
-        <button class="btn-estado" data-estado="pagoPendiente">Facturas con Pago Pendiente</button>
-        <button class="btn-estado" data-estado="prontoVencer">Facturas Pronto a Vencer (8 días)</button>
-        <button class="btn-estado" data-estado="porPagarHoy">Facturas por Pagar Hoy</button>
+    <!-- Botones de acciones -->
+    <div class="acciones">
+        <button class="btn" id="agregar-factura-btn">Agregar Factura</button>
+        <button class="btn" id="editar-factura-btn" disabled>Editar Factura</button>
+        <button class="btn" id="eliminar-factura-btn" disabled>Eliminar Factura</button>
+        <button class="btn" id="pagar-facturas-btn" disabled>Pagar Facturas</button>
+        <button class="btn" id="generar-reporte-btn">Generar Reporte</button>
     </div>
 
     <!-- Búsquedas -->
@@ -69,6 +67,17 @@
 
         <label for="buscar-boleta">Buscar por Boleta ID (ej: B001,B002):</label>
         <input type="text" id="buscar-boleta" placeholder="Ingrese IDs de boleta separados por comas">
+    </div>
+
+    <!-- Botones de filtro por estado -->
+    <div class="filtro-estado">
+        <button class="btn-estado" data-estado="todas">Todas las Facturas</button>
+        <button class="btn-estado" data-estado="pagadas">Facturas Pagadas</button>
+        <button class="btn-estado" data-estado="porPagar">Facturas por Pagar</button>
+        <button class="btn-estado" data-estado="vencidas">Facturas Vencidas</button>
+        <button class="btn-estado" data-estado="pagoPendiente">Facturas con Pago Pendiente</button>
+        <button class="btn-estado" data-estado="prontoVencer">Facturas Pronto a Vencer (8 días)</button>
+        <button class="btn-estado" data-estado="porPagarHoy">Facturas por Pagar Hoy</button>
     </div>
 
     <!-- Tabla de facturas -->
@@ -102,15 +111,6 @@
     <!-- Total pendiente seleccionado -->
     <div class="total-pendiente">
         <p>Total Pendiente Seleccionado: <span id="total-pendiente">Q0.00</span></p>
-    </div>
-
-    <!-- Botones de acciones -->
-    <div class="acciones">
-        <button class="btn" id="agregar-factura-btn">Agregar Factura</button>
-        <button class="btn" id="editar-factura-btn" disabled>Editar Factura</button>
-        <button class="btn" id="eliminar-factura-btn" disabled>Eliminar Factura</button>
-        <button class="btn" id="pagar-facturas-btn" disabled>Pagar Facturas</button>
-        <button class="btn" id="generar-reporte-btn">Generar Reporte</button>
     </div>
 
     <!-- Modal de agregar/editar factura -->
@@ -244,139 +244,372 @@
         </div>
     </div>
 
-    <!-- Estilos en línea para simplificar la interfaz -->
+    <!-- Estilos CSS (Puedes mantenerlos en un archivo externo styles.css) -->
     <style>
-        /* Estilos mínimos para una interfaz limpia y sencilla */
+        /* Estilo general */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            padding: 20px;
+            background-color: #f5f5f5; /* Fondo suave */
         }
 
+        /* Encabezados */
         h1, h2 {
             text-align: center;
+            color: #333;
         }
 
-        .filtros, .busquedas, .acciones, .total-pendiente {
-            margin: 20px 0;
+        /* Contenedores de filtros, búsquedas y acciones */
+        .filtros, .busquedas, .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .total-pendiente {
+            margin-bottom: 20px;
             text-align: center;
         }
 
         .filtros label, .busquedas label {
-            margin-right: 10px;
+            margin-right: 5px;
+            font-weight: bold;
         }
 
+        .filtros select, .busquedas input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Botones de acciones */
+        .acciones .btn {
+            padding: 10px 15px;
+            background-color: #007bff; /* Azul primario */
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .acciones .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .acciones .btn:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+
+        /* Botones de filtro por estado */
         .filtro-estado {
             display: flex;
-            justify-content: center;
             flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
         }
 
         .filtro-estado .btn-estado {
-            margin: 5px;
-            padding: 10px 15px;
-            cursor: pointer;
-        }
-
-        .filtro-estado .btn-estado.active {
-            background-color: #007bff;
+            padding: 8px 12px;
+            background-color: #6c757d; /* Gris */
             color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
         }
 
+        .filtro-estado .btn-estado.active,
+        .filtro-estado .btn-estado:hover {
+            background-color: #007bff; /* Azul al activar o hover */
+        }
+
+        /* Estilo para las tablas */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            background-color: #fff; /* Fondo blanco para las tablas */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         table th, table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px 15px;
             text-align: center;
         }
 
         table th {
-            background-color: #f2f2f2;
+            background-color: #f4f4f4;
+            font-weight: bold;
+            color: #555;
         }
 
-        .btn {
-            padding: 10px 15px;
-            margin: 5px;
+        table td {
+            color: #333;
+        }
+
+        /* Nueva columna Total Boleta */
+        table th:nth-child(16), table td:nth-child(16) {
+            width: 120px;
+        }
+
+        /* Botones dentro de las tablas */
+        table .btn-ver-boletas {
+            padding: 6px 10px;
+            background-color: #28a745; /* Verde */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        table .btn-ver-boletas:hover {
+            background-color: #218838;
+        }
+
+        /* Estilo para los formularios */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Estados de las facturas */
+        .pagada {
+            background-color: #d4edda; /* Verde claro */
+            color: #155724; /* Verde oscuro */
+        }
+
+        .pendiente {
+            background-color: #fff3cd; /* Amarillo claro */
+            color: #856404; /* Amarillo oscuro */
+        }
+
+        .sin-pago {
+            background-color: #f8d7da; /* Rojo claro */
+            color: #721c24; /* Rojo oscuro */
+        }
+
+        /* Estilo de los checkboxes */
+        .factura-checkbox {
+            transform: scale(1.2);
             cursor: pointer;
         }
 
+        /* Estilo de los modales */
         .modal {
-            display: none;
+            display: none; /* Oculto por defecto */
             position: fixed;
-            z-index: 999;
-            padding-top: 50px;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
+            overflow: auto; /* Habilitar scroll si es necesario */
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
         .modal-content {
             background-color: #fefefe;
             margin: auto;
-            padding: 20px;
-            width: 90%;
-            max-width: 800px;
+            padding: 20px 30px;
+            border: 1px solid #888;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90%;
+            overflow-y: auto;
             position: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #333;
         }
 
         .close {
             color: #aaa;
             position: absolute;
-            top: 10px;
-            right: 25px;
-            font-size: 30px;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.3s;
         }
 
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        /* Estilo de los botones dentro de los modales */
         .modal-actions {
             text-align: center;
             margin-top: 20px;
         }
 
-        /* Estilos para las filas según el estado */
-        .sin-pago {
-            background-color: #ffcccc; /* Rojo claro */
+        .modal-actions .btn {
+            width: 45%;
         }
 
-        .pendiente {
-            background-color: #fff0b3; /* Amarillo claro */
+        /* Estilo específico para el modal de reporte */
+        #reporte-modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Habilitar scroll si es necesario */
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+            justify-content: center;
+            align-items: center;
         }
 
-        .pagada {
-            background-color: #ccffcc; /* Verde claro */
+        #reporte-modal .modal-content {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            margin: 0;
+            padding: 20px;
+            border-radius: 0;
+            box-shadow: none;
+            position: relative;
+            overflow: auto;
         }
 
-        /* Estilos para inputs y selects */
-        input[type="text"], input[type="number"], input[type="date"], select {
-            padding: 5px;
-            margin: 5px;
-            width: calc(100% - 22px);
-            box-sizing: border-box;
+        #reporte-modal .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 36px;
         }
 
-        form label {
-            display: block;
-            margin-top: 10px;
+        #reporte-modal h2 {
+            text-align: center;
+            margin-top: 0;
         }
 
-        /* Estilos para botones */
-        .btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
+        #reporte-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+        #reporte-table th, #reporte-table td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        #reporte-table th {
+            background-color: #f4f4f4;
+            color: #555;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        #reporte-table td {
+            color: #333;
+        }
+
+        /* Añadir scroll al contenido del modal si es necesario */
+        #reporte-modal .modal-content {
+            overflow: auto;
+        }
+
+        /* Mejorar la visualización en dispositivos móviles */
+        @media (max-width: 768px) {
+            .filtros, .busquedas, .acciones, .total-pendiente {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .filtros label, .busquedas label {
+                margin-right: 0;
+            }
+
+            .filtro-estado {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .filtro-estado .btn-estado {
+                width: 100%;
+            }
+
+            table th, table td {
+                padding: 8px 10px;
+            }
+
+            .modal-content {
+                padding: 15px 20px;
+            }
+
+            #reporte-modal .modal-content {
+                padding: 10px;
+            }
+
+            #reporte-modal .close {
+                top: 10px;
+                right: 15px;
+                font-size: 28px;
+            }
+
+            #reporte-table th, #reporte-table td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+        }
+
+        /* Scrollbar personalizada para modales */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 
