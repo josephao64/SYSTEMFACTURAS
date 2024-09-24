@@ -8,7 +8,6 @@ document.addEventListener('dbReady', function() {
     cargarProveedoresFiltro();
     cargarProveedores();
     cargarFacturas();
-    cargarSucursalesPago();
     configurarEventos();
 });
 
@@ -35,14 +34,20 @@ function cargarSucursales() {
 }
 
 /**
- * Cargar sucursales en el select de pago
+ * Cargar sucursales en el select de pago (Quién Depositó)
  */
-function cargarSucursalesPago() {
+function cargarSucursalesPago(empresaId) {
     const sucursalPagoSelect = document.getElementById('sucursal-pago');
     sucursalPagoSelect.innerHTML = '<option value="">Seleccione una sucursal</option>';
 
+    if (!empresaId) {
+        // Si no hay empresa seleccionada, no cargamos las sucursales
+        return;
+    }
+
     window.dbOperations.getAll('sucursales', function(sucursales) {
-        sucursales.forEach(sucursal => {
+        const sucursalesFiltradas = sucursales.filter(sucursal => sucursal.empresaId == empresaId);
+        sucursalesFiltradas.forEach(sucursal => {
             const option = document.createElement('option');
             option.value = sucursal.nombre;
             option.textContent = sucursal.nombre;
@@ -184,7 +189,7 @@ function cargarFacturas() {
         // Mostrar mensaje si no hay facturas
         if (facturasFiltradas.length === 0) {
             const fila = document.createElement('tr');
-            fila.innerHTML = `<td colspan="15" style="text-align: center;">No se encontraron facturas que coincidan con los criterios seleccionados.</td>`;
+            fila.innerHTML = `<td colspan="17" style="text-align: center;">No se encontraron facturas que coincidan con los criterios seleccionados.</td>`;
             tableBody.appendChild(fila);
         }
     });
@@ -264,8 +269,11 @@ function renderFactura(factura, empresa, sucursal, proveedor) {
     const ultimaBoleta = factura.boletas.length > 0 ?
         factura.boletas[factura.boletas.length - 1] : null;
 
+    // Obtener el montoTotalBoleta de la última boleta
+    const totalBoleta = ultimaBoleta ? ultimaBoleta.montoTotalBoleta : 0;
+
     row.innerHTML = `
-        <td><input type="checkbox" class="factura-checkbox" data-id="${factura.id}" data-monto="${factura.montoPendiente}" data-empresa="${empresa.nombre}" data-proveedor="${proveedor.nombre}"></td>
+        <td><input type="checkbox" class="factura-checkbox" data-id="${factura.id}" data-monto="${factura.montoPendiente}" data-empresa="${empresa.nombre}" data-proveedor="${proveedor.nombre}" data-empresaId="${empresa.id}"></td>
         <td>${empresa.nombre}</td>
         <td>${proveedor.nombre}</td>
         <td>${sucursal.nombre}</td>
@@ -282,6 +290,7 @@ function renderFactura(factura, empresa, sucursal, proveedor) {
         <td id="banco-${factura.id}">${ultimaBoleta ? ultimaBoleta.banco : 'N/A'}</td>
         <td id="formaPago-${factura.id}">${ultimaBoleta ? ultimaBoleta.formaPago : 'N/A'}</td>
         <td id="quienDeposito-${factura.id}">${ultimaBoleta ? ultimaBoleta.quienDeposito : 'N/A'}</td>
+        <td>Q${totalBoleta.toFixed(2)}</td> <!-- Columna Total Boleta -->
         <td><button class="btn-ver-boletas" data-id="${factura.id}">Ver Boletas de Pago</button></td>
     `;
     tableBody.appendChild(row);
@@ -328,6 +337,7 @@ function configurarEventos() {
             const montoPendiente = parseFloat(event.target.dataset.monto);
             const empresa = event.target.dataset.empresa;
             const proveedor = event.target.dataset.proveedor;
+            const empresaId = parseInt(event.target.dataset.empresaid);
 
             if (event.target.checked) {
                 // Verificar reglas antes de agregar
@@ -344,7 +354,7 @@ function configurarEventos() {
                         return;
                     }
                 }
-                facturasSeleccionadas.push({ id: facturaId, montoPendiente, empresa, proveedor });
+                facturasSeleccionadas.push({ id: facturaId, montoPendiente, empresa, proveedor, empresaId });
             } else {
                 facturasSeleccionadas = facturasSeleccionadas.filter(factura => factura.id !== facturaId);
             }
@@ -402,6 +412,9 @@ function configurarEventos() {
         let totalPendiente = 0;
         let facturasDetalle = 0;
 
+        // Obtener la empresa de las facturas seleccionadas (todas deben ser de la misma empresa)
+        const empresaId = facturasSeleccionadas[0].empresaId;
+
         facturasSeleccionadas.forEach(factura => {
             window.dbOperations.get('facturas', factura.id, function(facturaData) {
                 window.dbOperations.get('sucursales', facturaData.sucursalId, function(sucursal) {
@@ -417,6 +430,8 @@ function configurarEventos() {
                             // Una vez cargadas todas las facturas seleccionadas
                             if (facturasDetalle === facturasSeleccionadas.length) {
                                 document.getElementById('total-pendiente-modal').innerText = `Q${totalPendiente.toFixed(2)}`;
+                                // Cargar las sucursales de la misma empresa en el select de "Quién Depositó"
+                                cargarSucursalesPago(empresaId);
                                 document.getElementById('pago-modal').style.display = 'flex';
                                 // Asegurar que el botón de aplicar pago esté habilitado
                                 document.getElementById('aplicar-pago').disabled = false;
@@ -573,7 +588,7 @@ function configurarEventos() {
 
         // Validar que numeroFactura sea único (excepto para la factura en edición)
         window.dbOperations.getAll('facturas', function(facturas) {
-            const existe = facturas.some(factura => 
+            const existe = facturas.some(factura =>
                 factura.numeroFactura.toLowerCase() === numeroFactura.toLowerCase() &&
                 factura.id !== facturaEnEdicion
             );
@@ -708,8 +723,9 @@ function configurarEventos() {
         }
 
         let montoRestante = montoTotal;
-        const transaction = db.transaction(["facturas"], "readwrite");
-        const facturaStore = transaction.objectStore("facturas");
+
+        // Ordenar las facturas seleccionadas por montoPendiente ascendente
+        facturasSeleccionadas.sort((a, b) => a.montoPendiente - b.montoPendiente);
 
         facturasSeleccionadas.forEach(facturaSeleccionada => {
             window.dbOperations.get('facturas', facturaSeleccionada.id, function(factura) {
@@ -729,17 +745,18 @@ function configurarEventos() {
                     factura.estado = 'Pendiente';
                 }
 
-                // Validar que no existan boletas con el mismo número de factura (numeroBoleta)
+                // Validar que no existan boletas con el mismo número de boleta (numeroBoleta)
                 const boletaExiste = factura.boletas.some(boleta => boleta.boletaId.toLowerCase() === numeroBoleta.toLowerCase());
                 if (boletaExiste) {
                     Swal.fire('Error', `La boleta ID "${numeroBoleta}" ya existe para la factura "${factura.numeroFactura}".`, 'error');
                     return;
                 }
 
-                // Agregar la boleta
+                // Agregar la boleta con montoTotalBoleta
                 factura.boletas.push({
                     boletaId: numeroBoleta,
                     montoAplicado: parseFloat(pagoAplicado.toFixed(2)),
+                    montoTotalBoleta: montoTotal, // Monto total de la boleta
                     fecha: fechaPago,
                     banco: bancoSeleccionado,
                     formaPago: formaPagoSeleccionada,
@@ -747,7 +764,8 @@ function configurarEventos() {
                 });
 
                 window.dbOperations.update('facturas', factura, function() {
-                    if (facturasSeleccionadas.indexOf(facturaSeleccionada) === facturasSeleccionadas.length - 1 && montoRestante === 0) {
+                    // Una vez que se han procesado todas las facturas
+                    if (facturasSeleccionadas.indexOf(facturaSeleccionada) === facturasSeleccionadas.length - 1) {
                         Swal.fire({
                             title: '¡Pago aplicado con éxito!',
                             html: `
@@ -756,7 +774,7 @@ function configurarEventos() {
                                 <strong>Banco:</strong> ${bancoSeleccionado}<br>
                                 <strong>Forma de Pago:</strong> ${formaPagoSeleccionada}<br>
                                 <strong>Sucursal para el Pago (Quién Depositó):</strong> ${sucursalPagoSeleccionada}<br>
-                                <strong>Monto Aplicado:</strong> Q${pagoAplicado.toFixed(2)}
+                                <strong>Monto Total Aplicado:</strong> Q${(montoTotal).toFixed(2)}
                             `,
                             icon: 'success',
                             confirmButtonText: 'Aceptar'
@@ -793,7 +811,8 @@ function configurarEventos() {
             if (factura.boletas && factura.boletas.length > 0) {
                 const boletasDetalles = factura.boletas.map(boleta => `
                     <strong>ID Boleta:</strong> ${boleta.boletaId}<br>
-                    <strong>Monto Aplicado:</strong> Q${boleta.montoAplicado.toFixed(2)}<br>
+                    <strong>Monto Aplicado a esta Factura:</strong> Q${boleta.montoAplicado.toFixed(2)}<br>
+                    <strong>Monto Total de la Boleta:</strong> Q${boleta.montoTotalBoleta.toFixed(2)}<br>
                     <strong>Fecha de Abono:</strong> ${boleta.fecha}<br>
                     <strong>Banco:</strong> ${boleta.banco}<br>
                     <strong>Forma de Pago:</strong> ${boleta.formaPago}<br>
@@ -831,7 +850,8 @@ function configurarEventos() {
 
             const boletasHTML = factura.boletas.map(boleta => `
                 <strong>ID Boleta:</strong> ${boleta.boletaId}<br>
-                <strong>Monto Aplicado:</strong> Q${boleta.montoAplicado.toFixed(2)}<br>
+                <strong>Monto Aplicado a esta Factura:</strong> Q${boleta.montoAplicado.toFixed(2)}<br>
+                <strong>Monto Total de la Boleta:</strong> Q${boleta.montoTotalBoleta.toFixed(2)}<br>
                 <strong>Fecha de Abono:</strong> ${boleta.fecha}<br>
                 <strong>Banco:</strong> ${boleta.banco}<br>
                 <strong>Forma de Pago:</strong> ${boleta.formaPago}<br>
@@ -842,23 +862,13 @@ function configurarEventos() {
 
             Swal.fire({
                 title: 'Boletas de Pago',
-                html: `${boletasHTML}<strong>Total de Pagos:</strong> Q${total}`,
+                html: `${boletasHTML}<strong>Total Aplicado a esta Factura:</strong> Q${total}`,
                 icon: 'info',
                 width: '600px',
                 confirmButtonText: 'Cerrar'
             });
         });
     }
-
-    /**
-     * Configurar filtros y botones de reporte
-     */
-    // Ya configurado en configurarEventos()
-
-    /**
-     * Manejar la selección de filtros y generación de reporte
-     */
-    // Ya implementado
 
     /**
      * Escuchar cambios en el proveedor para cargar días de crédito
@@ -956,17 +966,12 @@ function configurarEventos() {
             // Ordenar las facturas
             facturasFiltradas = ordenarFacturas(facturasFiltradas, criterioOrdenamiento);
 
-            // Agrupar facturas por Proveedor para unir filas en el reporte
-            const facturasAgrupadas = agruparFacturasPorProveedor(facturasFiltradas);
-
             // Renderizar el reporte
-            facturasAgrupadas.forEach(grupo => {
-                grupo.facturas.forEach((factura, index) => {
-                    window.dbOperations.get('sucursales', factura.sucursalId, function(sucursal) {
-                        window.dbOperations.get('empresas', sucursal.empresaId, function(empresa) {
-                            window.dbOperations.get('proveedores', factura.proveedorId, function(proveedor) {
-                                renderReporteFila(grupo.proveedor, factura, empresa, sucursal, index === 0, grupo.facturas.length);
-                            });
+            facturasFiltradas.forEach(factura => {
+                window.dbOperations.get('sucursales', factura.sucursalId, function(sucursal) {
+                    window.dbOperations.get('empresas', sucursal.empresaId, function(empresa) {
+                        window.dbOperations.get('proveedores', factura.proveedorId, function(proveedor) {
+                            renderReporteFila(factura, empresa, sucursal, proveedor);
                         });
                     });
                 });
@@ -978,40 +983,12 @@ function configurarEventos() {
     }
 
     /**
-     * Agrupar facturas por proveedor
+     * Renderizar una fila en el reporte con las boletas asociadas
      */
-    function agruparFacturasPorProveedor(facturas) {
-        const agrupado = {};
-
-        facturas.forEach(factura => {
-            if (!agrupado[factura.proveedorId]) {
-                agrupado[factura.proveedorId] = {
-                    proveedor: factura.proveedorId,
-                    facturas: []
-                };
-            }
-            agrupado[factura.proveedorId].facturas.push(factura);
-        });
-
-        // Convertir a un array
-        const resultado = [];
-        for (let proveedorId in agrupado) {
-            resultado.push({
-                proveedor: agrupado[proveedorId].facturas[0].proveedorId,
-                facturas: agrupado[proveedorId].facturas
-            });
-        }
-
-        return resultado;
-    }
-
-    /**
-     * Renderizar una fila en el reporte con posibles filas unificadas
-     */
-    function renderReporteFila(proveedorId, factura, empresa, sucursal, esPrimeraFila, totalFilas) {
+    function renderReporteFila(factura, empresa, sucursal, proveedor) {
         const reporteContenido = document.getElementById('reporte-contenido');
 
-        window.dbOperations.get('proveedores', proveedorId, function(proveedor) {
+        if (factura.boletas.length > 0) {
             factura.boletas.forEach((boleta, index) => {
                 const filaFactura = document.createElement('tr');
 
@@ -1026,6 +1003,7 @@ function configurarEventos() {
                         <td rowspan="${factura.boletas.length}">${factura.estado}</td>
                         <td>${boleta.fecha}</td>
                         <td>Q${boleta.montoAplicado.toFixed(2)}</td>
+                        <td>Q${boleta.montoTotalBoleta.toFixed(2)}</td>
                         <td>${boleta.boletaId}</td>
                         <td>${boleta.banco}</td>
                         <td>${boleta.formaPago}</td>
@@ -1035,6 +1013,7 @@ function configurarEventos() {
                     filaFactura.innerHTML = `
                         <td>${boleta.fecha}</td>
                         <td>Q${boleta.montoAplicado.toFixed(2)}</td>
+                        <td>Q${boleta.montoTotalBoleta.toFixed(2)}</td>
                         <td>${boleta.boletaId}</td>
                         <td>${boleta.banco}</td>
                         <td>${boleta.formaPago}</td>
@@ -1044,43 +1023,27 @@ function configurarEventos() {
 
                 reporteContenido.appendChild(filaFactura);
             });
-
-            // Si no hay boletas, agregar una fila con N/A
-            if (factura.boletas.length === 0) {
-                const filaFactura = document.createElement('tr');
-                filaFactura.innerHTML = `
-                    <td>${empresa.nombre}</td>
-                    <td>${proveedor.nombre}</td>
-                    <td>${factura.fechaEmision}</td>
-                    <td>${factura.numeroFactura}</td>
-                    <td>Q${factura.montoFactura.toFixed(2)}</td>
-                    <td>${factura.fechaVencimiento}</td>
-                    <td>${factura.estado}</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
-                    <td>N/A</td>
-                `;
-                reporteContenido.appendChild(filaFactura);
-            }
-        });
+        } else {
+            const filaFactura = document.createElement('tr');
+            filaFactura.innerHTML = `
+                <td>${empresa.nombre}</td>
+                <td>${proveedor.nombre}</td>
+                <td>${factura.fechaEmision}</td>
+                <td>${factura.numeroFactura}</td>
+                <td>Q${factura.montoFactura.toFixed(2)}</td>
+                <td>${factura.fechaVencimiento}</td>
+                <td>${factura.estado}</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+                <td>N/A</td>
+            `;
+            reporteContenido.appendChild(filaFactura);
+        }
     }
-
-    /**
-     * Manejar el clic en "Exportar Tabla" y los botones de exportación en el modal
-     */
-    // Ya manejado por export.js
-
-    /**
-     * Escuchar cambios en el proveedor para cargar días de crédito
-     */
-    // Ya configurado
-
-    /**
-     * Función para generar el reporte con facturas y boletas asociadas
-     */
-    // Ya implementado
 
     /**
      * Cerrar los modales cuando se haga clic fuera de ellos
